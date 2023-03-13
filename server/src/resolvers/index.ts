@@ -1,12 +1,13 @@
+import { GraphQLDateTime } from "graphql-iso-date";
+
 import { userResolver } from "./user";
 import { categoryResolver } from "./category";
-
-import { GraphQLDateTime } from "graphql-iso-date";
+import { postResolver } from "./post";
 
 const customScalarResolver = {
   Date: GraphQLDateTime,
 };
 
-const resolvers = [customScalarResolver, userResolver,categoryResolver];
+const resolvers = [customScalarResolver, userResolver, categoryResolver,postResolver];
 
 export default resolvers;
