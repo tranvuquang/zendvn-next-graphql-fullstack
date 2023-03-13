@@ -36,7 +36,7 @@ function MyApp({ Component, pageProps }: MyAppProps) {
   const dispatch = useAppDispatch();
   const { accessToken, user } = pageProps;
 
-  // save accessToken va user vao redux server side
+  // save accessToken va user vao redux server va client side
   useMemo(() => {
     dispatch(setAccessTokenRedux(accessToken));
     dispatch(setUserRedux(user));

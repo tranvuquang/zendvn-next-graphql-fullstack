@@ -1,32 +1,35 @@
 import Link from "next/link";
+import { useAppSelector } from "../../app/hooks";
+import Dropdown from "react-bootstrap/Dropdown";
+import { selectAuth } from "../../features/auth/authSlice";
 
 export default function HeaderMenu() {
-    // const [categories] = useGlobalState("categories");
+  const { categories } = useAppSelector(selectAuth);
 
-    return (
-        <nav>
-            <ul className="ass1-header__menu">
-                <li>
-                    <a>Danh mục</a>
-                    <div className="ass1-header__nav">
-                        <div className="container">
-                            <ul>
-                            {/* {
-                                categories.map((cate) => {
-                                    return (
-                                        <li key={cate.id}>
-                                            <Link href="/categories/[cateId]" as={`/categories/${cate.id}`}>
-                                                <a>{cate.text}</a>
-                                            </Link>
-                                        </li>
-                                    )
-                                })
-                            } */}
-                            </ul>
-                        </div>
-                    </div>
-                </li>
-            </ul>
-        </nav>
-    )
+  return (
+    <Dropdown>
+      <Dropdown.Toggle
+        variant="warning"
+        id="dropdown-basic"
+        style={{
+          color: "unset",
+          border: "none",
+          backgroundColor: "transparent",
+        }}
+      >
+        Danh muc
+      </Dropdown.Toggle>
+      <Dropdown.Menu>
+        {categories.map((cate) => {
+          return (
+            <Dropdown.Item key={cate.id}>
+              <Link href={`/posts/categories/${cate.id}`}>
+                <a>{cate.text}</a>
+              </Link>
+            </Dropdown.Item>
+          );
+        })}
+      </Dropdown.Menu>
+    </Dropdown>
+  );
 }
