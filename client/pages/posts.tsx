@@ -18,7 +18,7 @@ const PostPage: NextPage<Props> = (props) => {
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) =>
     async ({ query }) => {
-      console.log("store state on the server posts.tsx", store.getState().auth);
+      console.log("02 posts.tsx store state on the server: ", store.getState().auth);
       return {
         props: {},
       };

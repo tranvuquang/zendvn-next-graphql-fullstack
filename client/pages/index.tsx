@@ -9,23 +9,18 @@ type Props = {
 import { wrapper } from "../app/store";
 import React from "react";
 
-const Home: NextPage<Props> = (props) => {
-  return (
-    <div >
-      index
-    </div>
-  );
+const HomePage: NextPage<Props> = (props) => {
+  return <div>index</div>;
 };
 
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) =>
     async ({ query }) => {
-      console.log("store state on the server index.tsx", store.getState().auth);
+      console.log("02 index.tsx store state on the server: ", store.getState().auth);
       return {
-        props: {
-        }, 
+        props: {},
       };
     }
 );
 
-export default Home;
+export default HomePage;
