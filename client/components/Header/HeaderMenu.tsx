@@ -2,8 +2,9 @@ import Link from "next/link";
 import { useAppSelector } from "../../app/hooks";
 import Dropdown from "react-bootstrap/Dropdown";
 import { selectAuth } from "../../features/auth/authSlice";
+type Props = {};
 
-export default function HeaderMenu() {
+export default function HeaderMenu(props: Props) {
   const { categories } = useAppSelector(selectAuth);
 
   return (

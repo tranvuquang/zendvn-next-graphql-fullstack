@@ -12,7 +12,9 @@ import { userDefaultData } from "../../features/auth/types";
 import HeaderMenu from "./HeaderMenu";
 import HeaderSearch from "./HeaderSearch";
 
-export default function Header() {
+type Props = {};
+
+export default function Header(props: Props) {
   const router = useRouter();
   const { user, accessToken } = useAppSelector(selectAuth);
   const dispatch = useAppDispatch();

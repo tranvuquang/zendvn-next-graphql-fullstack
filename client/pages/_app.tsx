@@ -14,12 +14,11 @@ import {
 } from "../features/auth/authSlice";
 import { graphqlClient, queryClient } from "../graphql-client/config";
 import { ApolloProvider } from "@apollo/client";
-import { useEffect, useMemo } from "react";
+import { useMemo } from "react";
 import { NextComponentType, NextPageContext } from "next";
 
 import { getTokenFromCookie, getUser } from "../helpers";
-import { useAppDispatch } from "../app/hooks";
-import { getCategoriesQuery, getUserQuery } from "../graphql-client/queries";
+import { getCategoriesQuery } from "../graphql-client/queries";
 
 interface MyAppProps extends AppProps {
   Component: NextComponentType<NextPageContext, any, any>;
@@ -29,53 +28,24 @@ interface MyAppProps extends AppProps {
       id: string;
       email: string;
     };
+    categories: any[];
   };
 }
 
-function MyApp({ Component, pageProps }: MyAppProps) {
-  const dispatch = useAppDispatch();
-  const { accessToken, user } = pageProps;
+const dispatch = store.dispatch;
 
-  // save accessToken va user vao redux server va client side
+function MyApp({ Component, pageProps }: MyAppProps) {
+  const { accessToken, user, categories } = pageProps;
+
+  // save accessToken va user vao redux client side
   useMemo(() => {
     dispatch(setAccessTokenRedux(accessToken));
     dispatch(setUserRedux(user));
+    dispatch(setCategoriesRedux(categories));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // get public data va user data vao redux client side
-  useEffect(() => {
-    (async () => {
-      try {
-        const categoriesData = await queryClient(
-          "",
-          dispatch,
-          getCategoriesQuery
-        );
-        if (categoriesData) {
-          dispatch(setCategoriesRedux(categoriesData.data.getCategories))
-        }
-        if (accessToken) {
-          const userData = await queryClient(
-            accessToken,
-            dispatch,
-            getUserQuery,
-            {
-              id: user.id,
-            }
-          );
-          if (userData) {
-            dispatch(setUserRedux(user));
-          }
-        }
-      } catch (error: any) {
-        console.log(error.message);
-      }
-    })();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const client = graphqlClient(pageProps.accessToken);
+  const client = graphqlClient(accessToken);
   return (
     <ApolloProvider client={client}>
       <div id="root">
@@ -103,21 +73,43 @@ function MyApp({ Component, pageProps }: MyAppProps) {
 }
 
 MyApp.getInitialProps = async (appContext: AppContext) => {
-  const appProps = await App.getInitialProps(appContext);
-  console.log("01 _app.tsx")
-  const accessToken = getTokenFromCookie(appContext);
-  const user = getUser(accessToken);
+  try {
+    console.log("01 _app.tsx");
+    const appProps = await App.getInitialProps(appContext);
 
-  // save accessToken va user vao redux pageProps
-  store.dispatch(setAccessTokenRedux(accessToken));
-  store.dispatch(setUserRedux(user));
-  return {
-    pageProps: {
-      ...appProps.pageProps,
-      accessToken,
-      user,
-    },
-  };
+    // lay data co dinh tu cookie
+    const accessToken = getTokenFromCookie(appContext);
+    let user = getUser(accessToken);
+    dispatch(setAccessTokenRedux(accessToken));
+    dispatch(setUserRedux(user));
+
+    // lay data co dinh tu server
+    let categoriesList = [];
+    const { categories } = store.getState().auth;
+    categoriesList = categories;
+
+    if (categoriesList.length === 0) {
+      const categoriesData = await queryClient(
+        "",
+        dispatch,
+        getCategoriesQuery
+      );
+      if (categoriesData) {
+        categoriesList = categoriesData.data.getCategories;
+        dispatch(setCategoriesRedux(categoriesList));
+      }
+    }
+    return {
+      pageProps: {
+        ...appProps.pageProps,
+        accessToken,
+        user,
+        categories: categoriesList,
+      },
+    };
+  } catch (error: any) {
+    console.log(error.message);
+  }
 };
 
 export default wrapper.withRedux(MyApp);
