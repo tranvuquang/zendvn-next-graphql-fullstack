@@ -7,13 +7,19 @@ import Head from "next/head";
 import { Header } from "../components/Header";
 import { Footer } from "../components/Footer";
 import App, { AppContext, AppProps } from "next/app";
-import { setAccessTokenRedux, setUserRedux } from "../features/auth/authSlice";
-import { graphqlClient } from "../graphql-client/config";
+import {
+  setAccessTokenRedux,
+  setCategoriesRedux,
+  setUserRedux,
+} from "../features/auth/authSlice";
+import { graphqlClient, queryClient } from "../graphql-client/config";
 import { ApolloProvider } from "@apollo/client";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { NextComponentType, NextPageContext } from "next";
 
 import { getTokenFromCookie, getUser } from "../helpers";
+import { useAppDispatch } from "../app/hooks";
+import { getCategoriesQuery, getUserQuery } from "../graphql-client/queries";
 
 interface MyAppProps extends AppProps {
   Component: NextComponentType<NextPageContext, any, any>;
@@ -27,19 +33,51 @@ interface MyAppProps extends AppProps {
 }
 
 function MyApp({ Component, pageProps }: MyAppProps) {
+  const dispatch = useAppDispatch();
   const { accessToken, user } = pageProps;
 
-  // save accessToken va user vao redux client side
+  // save accessToken va user vao redux server side
   useMemo(() => {
-    store.dispatch(setAccessTokenRedux(accessToken));
-    store.dispatch(setUserRedux(user));
+    dispatch(setAccessTokenRedux(accessToken));
+    dispatch(setUserRedux(user));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const client = graphqlClient(accessToken);
+  // get public data va user data vao redux client side
+  useEffect(() => {
+    (async () => {
+      try {
+        const categoriesData = await queryClient(
+          "",
+          dispatch,
+          getCategoriesQuery
+        );
+        if (categoriesData) {
+          dispatch(setCategoriesRedux(categoriesData.data.getCategories))
+        }
+        if (accessToken) {
+          const userData = await queryClient(
+            accessToken,
+            dispatch,
+            getUserQuery,
+            {
+              id: user.id,
+            }
+          );
+          if (userData) {
+            dispatch(setUserRedux(user));
+          }
+        }
+      } catch (error: any) {
+        console.log(error.message);
+      }
+    })();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const client = graphqlClient(pageProps.accessToken);
   return (
     <ApolloProvider client={client}>
-      <hr />
       <div id="root">
         <Head>
           <meta httpEquiv="Content-Type" content="text/html; charset=UTF-8" />
@@ -66,10 +104,11 @@ function MyApp({ Component, pageProps }: MyAppProps) {
 
 MyApp.getInitialProps = async (appContext: AppContext) => {
   const appProps = await App.getInitialProps(appContext);
+  console.log("01 _app.tsx")
   const accessToken = getTokenFromCookie(appContext);
   const user = getUser(accessToken);
 
-  // save accessToken va user vao redux server side
+  // save accessToken va user vao redux pageProps
   store.dispatch(setAccessTokenRedux(accessToken));
   store.dispatch(setUserRedux(user));
   return {

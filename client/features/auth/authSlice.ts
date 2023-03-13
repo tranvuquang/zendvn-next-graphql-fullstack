@@ -19,6 +19,7 @@ const initialState: AuthState = {
   user: getUser(),
   accessToken: "",
   loading: false,
+  categories: [],
 };
 
 export const authSlice = createSlice({
@@ -34,11 +35,18 @@ export const authSlice = createSlice({
     setLoadingRedux: (state, action) => {
       state.loading = action.payload;
     },
+    setCategoriesRedux: (state, action) => {
+      state.categories = action.payload;
+    },
   },
 });
 
-export const { setUserRedux, setAccessTokenRedux, setLoadingRedux } =
-  authSlice.actions;
+export const {
+  setUserRedux,
+  setAccessTokenRedux,
+  setLoadingRedux,
+  setCategoriesRedux,
+} = authSlice.actions;
 
 export const selectAuth = (state: RootState) => state.auth;
 
