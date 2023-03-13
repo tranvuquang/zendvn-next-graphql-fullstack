@@ -1,14 +1,10 @@
 import { configureStore, ThunkAction } from "@reduxjs/toolkit";
 import { createWrapper } from "next-redux-wrapper";
 import { Action } from "redux";
-// import productReducer from "../features/product/productSlice";
-// import profileReducer from "../features/profile/profileSlice";
 import authReducer from "../features/auth/authSlice";
 
 export const store = configureStore({
   reducer: {
-    // profile: profileReducer,
-    // product: productReducer,
     auth: authReducer,
   },
   devTools: false,

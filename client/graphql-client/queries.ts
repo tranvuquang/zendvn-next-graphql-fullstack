@@ -23,4 +23,18 @@ const getUserQuery = gql`
   }
 `;
 
-export { getUserQuery, getCategoriesQuery };
+const getPostQuery = gql`
+  query getPostsQuery {
+    getPosts {
+      category
+      createdAt
+      email
+      id
+      post_content
+      uid
+      updatedAt
+    }
+  }
+`;
+
+export { getUserQuery, getCategoriesQuery, getPostQuery };
