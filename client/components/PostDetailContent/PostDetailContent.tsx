@@ -72,7 +72,7 @@ const PostDetailContent: React.FC<PropsType> = ({ postDetailData }) => {
 
       <PostCommentForm handleSubmitForm={handleSubmitForm} />
 
-      <PostCommentList listComments={listComments} />
+      <PostCommentList listComments={listComments} postId={postDetailData.uid}/>
     </div>
   );
 };

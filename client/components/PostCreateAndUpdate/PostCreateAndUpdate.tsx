@@ -3,7 +3,10 @@ import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { selectAuth } from "../../features/auth/authSlice";
 import { mutationClient } from "../../graphql-client/config";
-import { updatePostMutation } from "../../graphql-client/mutations";
+import {
+  createPostMutation,
+  updatePostMutation,
+} from "../../graphql-client/mutations";
 import { getPostsQuery } from "../../graphql-client/queries";
 import { PostDetailForm } from "../PostDetailForm";
 import { PostDetailSidebar } from "../PostDetailSidebar";
@@ -41,26 +44,41 @@ const PostCreateAndUpdate: React.FC<PropsType> = ({
     });
   };
   const handleSubmitPost = async () => {
-    if (id && uid) {
-      const { resData, reFetchData } = (await mutationClient(
-        accessToken,
-        dispath,
-        updatePostMutation,
-        postData,
-        getPostsQuery
-      )) as any;
-      if (resData && reFetchData) {
-        push("/posts");
+    try {
+      if (id && uid) {
+        const { resData, reFetchData } = (await mutationClient(
+          accessToken,
+          dispath,
+          updatePostMutation,
+          postData,
+          getPostsQuery
+        )) as any;
+        if (resData && reFetchData) {
+          push("/posts");
+          setPostData(postDataDefaultValue);
+        }
+      } else {
+        const data = {
+          uid: user.id,
+          email: user.email,
+          post_content,
+          category,
+        };
+        const { resData, reFetchData } = (await mutationClient(
+          accessToken,
+          dispath,
+          createPostMutation,
+          data,
+          getPostsQuery,
+          {}
+        )) as any;
+        if (resData && reFetchData) {
+          push("/posts");
+          setPostData(postDataDefaultValue);
+        }
       }
-    } else {
-      console.log("create");
-      const data = {
-        uid: user.id,
-        email: user.email,
-        post_content,
-        category,
-      };
-      console.log(data);
+    } catch (error: any) {
+      console.log(error.message);
     }
   };
   return (
