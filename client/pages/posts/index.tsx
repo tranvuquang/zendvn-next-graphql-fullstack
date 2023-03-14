@@ -3,7 +3,8 @@ import { wrapper } from "../../app/store";
 import React from "react";
 import { useNotAuthen } from "../../helpers/useAuthen";
 import { queryClient } from "../../graphql-client/config";
-import { getPostQuery } from "../../graphql-client/queries";
+import {  getPostsQuery } from "../../graphql-client/queries";
+import { PostListItem } from "../../components/PostListItem";
 
 type Props = {
   user: {
@@ -13,18 +14,28 @@ type Props = {
   posts: any[];
 };
 
-const PostPage: NextPage<Props> = ({ posts }) => {
+const PostPage: NextPage<Props> = ({ posts =[]}) => {
   useNotAuthen();
-  console.log(posts);
-  return <div>Posts Page</div>;
+  return (
+    <div className="container">
+      <div className="row">
+        <div className="col-lg-8">
+          <PostListItem listPosts={posts} />
+        </div>
+        <div className="col-lg-4">
+          {/* <HomeSidebar userPosts={userPosts} /> */}
+        </div>
+      </div>
+    </div>
+  );
 };
 
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) =>
     async ({ query }) => {
+      const { dispatch, getState } = store;
       let posts = [];
-      const dispatch = store.dispatch;
-      const { accessToken } = store.getState().auth;
+      const { accessToken } = getState().auth;
       console.log(
         "02 posts/index.tsx store state on the server:",
         store.getState().auth.user
@@ -33,7 +44,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
         const postsData = await queryClient(
           accessToken,
           dispatch,
-          getPostQuery,
+          getPostsQuery,
           {}
         );
         if (postsData) {

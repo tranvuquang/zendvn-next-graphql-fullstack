@@ -68,7 +68,7 @@ export const mutationClient = async (
       mutation,
       variables,
     })) as ApolloClient<NormalizedCacheObject>;
-    if (resData && query && value) {
+    if (resData && query ) {
       let reFetchData = await graphqlClient(accessToken).query({
         query,
         variables: value,

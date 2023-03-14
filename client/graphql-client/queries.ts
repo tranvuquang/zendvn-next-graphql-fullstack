@@ -23,7 +23,7 @@ const getUserQuery = gql`
   }
 `;
 
-const getPostQuery = gql`
+const getPostsQuery = gql`
   query getPostsQuery {
     getPosts {
       category
@@ -36,5 +36,18 @@ const getPostQuery = gql`
     }
   }
 `;
+const getPostQuery = gql`
+  query getPostQuery($id: String!) {
+  getPost(id: $id) {
+    category
+    createdAt
+    email
+    id
+    post_content
+    uid
+    updatedAt
+  }
+}
+`;
 
-export { getUserQuery, getCategoriesQuery, getPostQuery };
+export { getUserQuery, getCategoriesQuery, getPostsQuery,getPostQuery };

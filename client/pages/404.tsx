@@ -1,9 +1,12 @@
-import React from "react";
+import Link from "next/link";
 
-type Props = {};
-
-const NotFound = (props: Props) => {
-  return <div>404</div>;
-};
-
-export default NotFound;
+export default function FourOhFour() {
+  return (
+    <>
+      <h1>404 - Page Not Found</h1>
+      <Link href="/">
+        Go back home
+      </Link>
+    </>
+  );
+}
