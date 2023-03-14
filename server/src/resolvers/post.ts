@@ -38,25 +38,34 @@ export const postResolver = {
     },
   },
   Query: {
-    async getPosts(_parent: any, _args: any, _context: Context) {
+    async getPosts(_parent: any, { page, limit }: any, _context: Context) {
       try {
         const postsFounder = await posts.findAll({
           order: [["createdAt", "DESC"]],
+          subQuery: false,
+          offset: (page - 1) * limit,
+          limit,
         });
+        const postsCounter=await posts.count()
         if (postsFounder.lenth === 0) {
           throw new GraphQLError(`Posts list not found!`);
         }
-        return postsFounder.map((post: any) => {
-          return {
-            id: post.id,
-            uid: post.uid,
-            email: post.email,
-            post_content: post.post_content,
-            category: post.category,
-            createdAt: post.createdAt,
-            updatedAt: post.updatedAt,
-          };
-        });
+        return {
+          posts: postsFounder.map((post: any) => {
+            return {
+              id: post.id,
+              uid: post.uid,
+              email: post.email,
+              post_content: post.post_content,
+              category: post.category,
+              createdAt: post.createdAt,
+              updatedAt: post.updatedAt,
+            };
+          }),
+          total: postsCounter,
+          page,
+          limit,
+        };
       } catch (error) {
         console.log(error.message);
         throw new GraphQLError(error.message);

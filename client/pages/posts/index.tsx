@@ -3,7 +3,7 @@ import { wrapper } from "../../app/store";
 import React from "react";
 import { useNotAuthen } from "../../helpers/useAuthen";
 import { queryClient } from "../../graphql-client/config";
-import {  getPostsQuery } from "../../graphql-client/queries";
+import { getPostsQuery } from "../../graphql-client/queries";
 import { PostListItem } from "../../components/PostListItem";
 
 type Props = {
@@ -12,15 +12,16 @@ type Props = {
     email: string;
   };
   posts: any[];
+  total: number;
 };
 
-const PostPage: NextPage<Props> = ({ posts =[]}) => {
+const PostPage: NextPage<Props> = ({ posts = [], total }) => {
   useNotAuthen();
   return (
     <div className="container">
       <div className="row">
         <div className="col-lg-8">
-          <PostListItem listPosts={posts} />
+          <PostListItem listPosts={posts} total={total}/>
         </div>
         <div className="col-lg-4">
           {/* <HomeSidebar userPosts={userPosts} /> */}
@@ -35,6 +36,7 @@ export const getServerSideProps = wrapper.getServerSideProps(
     async ({ query }) => {
       const { dispatch, getState } = store;
       let posts = [];
+      let total = 1;
       const { accessToken } = getState().auth;
       console.log(
         "02 posts/index.tsx store state on the server:",
@@ -45,15 +47,17 @@ export const getServerSideProps = wrapper.getServerSideProps(
           accessToken,
           dispatch,
           getPostsQuery,
-          {}
+          { page: 1, limit: 3 }
         );
         if (postsData) {
-          posts = postsData.data.getPosts;
+          posts = postsData.data.getPosts.posts;
+          total = postsData.data.getPosts.total;
         }
       }
       return {
         props: {
           posts,
+          total,
         },
       };
     }

@@ -7,6 +7,7 @@ type ButtonProps = {
   colorStroke?: string;
   onClick?: () => void;
   children: ReactNode;
+  disabled?:boolean
 };
 
 const Button: React.FC<ButtonProps> = ({
@@ -16,13 +17,14 @@ const Button: React.FC<ButtonProps> = ({
   children,
   colorStroke,
   onClick,
+  disabled
 }) => {
   return (
     <button
       onClick={onClick}
       type={type}
       className={className}
-      disabled={isLoading}
+      disabled={isLoading||disabled}
     >
       {isLoading && (
         <svg

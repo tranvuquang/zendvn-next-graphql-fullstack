@@ -24,17 +24,31 @@ const getUserQuery = gql`
 `;
 
 const getPostsQuery = gql`
-  query getPostsQuery {
-    getPosts {
+  query getPostsQuery($page: Int, $limit: Int) {
+  getPosts(page: $page, limit: $limit) {
+    posts {
+      email
+      post_content
+      comments {
+        comment_content
+        createdAt
+        email
+        id
+        pid
+        uid
+        updatedAt
+      }
       category
       createdAt
-      email
       id
-      post_content
       uid
       updatedAt
     }
+    limit
+    page
+    total
   }
+}
 `;
 const getPostQuery = gql`
   query getPostQuery($id: String!) {

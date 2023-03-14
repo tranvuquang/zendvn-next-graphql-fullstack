@@ -51,7 +51,8 @@ const PostCreateAndUpdate: React.FC<PropsType> = ({
           dispath,
           updatePostMutation,
           postData,
-          getPostsQuery
+          getPostsQuery,
+          { page: 1, limit: 3 }
         )) as any;
         if (resData && reFetchData) {
           push("/posts");
@@ -70,7 +71,7 @@ const PostCreateAndUpdate: React.FC<PropsType> = ({
           createPostMutation,
           data,
           getPostsQuery,
-          {}
+          { page: 1, limit: 3 }
         )) as any;
         if (resData && reFetchData) {
           push("/posts");
