@@ -6,7 +6,11 @@ import { PostCommentForm } from "../PostCommentForm";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { selectAuth } from "../../features/auth/authSlice";
 import { mutationClient } from "../../graphql-client/config";
-import { createCommentMutation } from "../../graphql-client/mutations";
+import {
+  createCommentMutation,
+  deleteAllCommentsMutation,
+  deleteCommentMutation,
+} from "../../graphql-client/mutations";
 import { getPostQuery } from "../../graphql-client/queries";
 
 type PropsType = {
@@ -48,6 +52,52 @@ const PostDetailContent: React.FC<PropsType> = ({ postDetailData }) => {
     }
   };
 
+  const handleDeleteComment = async (id: string) => {
+    try {
+      const { resData, reFetchData } = (await mutationClient(
+        accessToken,
+        dispatch,
+        deleteCommentMutation,
+        {
+          id,
+        },
+        getPostQuery,
+        { id: postDetailData.id }
+      )) as any;
+      if (resData && reFetchData) {
+        setListComments(reFetchData.data.getPost.comments);
+      }
+    } catch (error: any) {
+      console.log(error.message);
+    }
+  };
+
+  const hanldeDeleteAllComments = async () => {
+    try {
+      const { uid, id, comments } = postDetailData;
+      if (user.id === uid) {
+        const idArr = comments.map((comment: any) => {
+          return comment.id;
+        });
+        const { resData, reFetchData } = (await mutationClient(
+          accessToken,
+          dispatch,
+          deleteAllCommentsMutation,
+          { idArr },
+          getPostQuery,
+          { id }
+        )) as any;
+        if (resData && reFetchData) {
+          setListComments(reFetchData.data.getPost.comments);
+        }
+      } else {
+        console.log("Access deniced");
+      }
+    } catch (error: any) {
+      console.log(error.message);
+    }
+  };
+
   return (
     <div className="ass1-section__list">
       <PostItem post={postDetailData} />
@@ -72,7 +122,12 @@ const PostDetailContent: React.FC<PropsType> = ({ postDetailData }) => {
 
       <PostCommentForm handleSubmitForm={handleSubmitForm} />
 
-      <PostCommentList listComments={listComments} postId={postDetailData.uid}/>
+      <PostCommentList
+        listComments={listComments}
+        postId={postDetailData.uid}
+        handleDeleteComment={handleDeleteComment}
+        hanldeDeleteAllComments={hanldeDeleteAllComments}
+      />
     </div>
   );
 };

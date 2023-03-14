@@ -1,16 +1,48 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Button } from "react-bootstrap";
-import { useAppSelector } from "../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { selectAuth } from "../../features/auth/authSlice";
+import { mutationClient } from "../../graphql-client/config";
+import { deletePostMutation } from "../../graphql-client/mutations";
+import { getPostsQuery } from "../../graphql-client/queries";
 
 type PropsType = {
   post?: any;
 };
 
 const PostItem: React.FC<PropsType> = ({ post }) => {
-  const { user } = useAppSelector(selectAuth);
-  const { postId } = useRouter().query;
+  const { user, accessToken } = useAppSelector(selectAuth);
+  const dispatch = useAppDispatch();
+  const {
+    query: { postId },
+    push,
+  } = useRouter();
+
+  const onDeletePost = async () => {
+    const { id, comments } = post;
+    const idArr = comments.map((comment: any) => {
+      return comment.id;
+    });
+    try {
+      const { resData } = (await mutationClient(
+        accessToken,
+        dispatch,
+        deletePostMutation,
+        {
+          id,
+          idArr,
+        },
+        getPostsQuery,
+        {}
+      )) as any;
+      if (resData) {
+        push("/posts");
+      }
+    } catch (error: any) {
+      console.log(error.message);
+    }
+  };
   return (
     <div className={"ass1-section__item"}>
       <div className="ass1-section">
@@ -43,14 +75,18 @@ const PostItem: React.FC<PropsType> = ({ post }) => {
               <Button>View</Button>
             </Link>
           )}
-          {user.id === post.uid && (
+          {postId && user.id === post.uid && (
             <Link href={`/posts/${post.id}/update`}>
               <Button variant="warning" className="mx-4">
                 Update
               </Button>
             </Link>
           )}
-          {user.id === post.uid && <Button variant="danger">Delete</Button>}
+          {postId && user.id === post.uid && (
+            <Button variant="danger" onClick={onDeletePost}>
+              Delete
+            </Button>
+          )}
         </div>
       </div>
     </div>

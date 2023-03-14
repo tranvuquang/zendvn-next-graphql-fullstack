@@ -16,7 +16,6 @@ const PostId: NextPage<Props> = ({post}) => {
   <div className="row">
       <div className="col-lg-8">
           <PostDetailContent 
-              // listComments={comments}
               postDetailData={post}
           />
       </div>
