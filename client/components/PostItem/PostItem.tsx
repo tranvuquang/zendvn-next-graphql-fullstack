@@ -34,7 +34,7 @@ const PostItem: React.FC<PropsType> = ({ post }) => {
           idArr,
         },
         getPostsQuery,
-        {}
+        { page: 1, limit: 3 }
       )) as any;
       if (resData) {
         push("/posts");
@@ -62,31 +62,38 @@ const PostItem: React.FC<PropsType> = ({ post }) => {
             {post.id && <p>{post.post_content}</p>}
           </div>
         </div>
+
         <div
           className="ass1-section__footer"
-          style={{ display: "flex", justifyContent: "flex-end" }}
+          style={{
+            display: "flex",
+            justifyContent: postId ? "flex-end" : "space-between",
+          }}
         >
-          {postId ? (
-            <Link href={`/posts/`}>
-              <Button>Back</Button>
-            </Link>
-          ) : (
-            <Link href={`/posts/${post.id}`}>
-              <Button>View</Button>
-            </Link>
-          )}
-          {postId && user.id === post.uid && (
-            <Link href={`/posts/${post.id}/update`}>
-              <Button variant="warning" className="mx-4">
-                Update
+          {!postId && <p>{post.comments.length} Bình luận</p>}
+          <div>
+            {postId ? (
+              <Link href={`/posts/`}>
+                <Button>Back</Button>
+              </Link>
+            ) : (
+              <Link href={`/posts/${post.id}`}>
+                <Button>View</Button>
+              </Link>
+            )}
+            {postId && user.id === post.uid && (
+              <Link href={`/posts/${post.id}/update`}>
+                <Button variant="warning" className="mx-4">
+                  Update
+                </Button>
+              </Link>
+            )}
+            {postId && user.id === post.uid && (
+              <Button variant="danger" onClick={onDeletePost}>
+                Delete
               </Button>
-            </Link>
-          )}
-          {postId && user.id === post.uid && (
-            <Button variant="danger" onClick={onDeletePost}>
-              Delete
-            </Button>
-          )}
+            )}
+          </div>
         </div>
       </div>
     </div>

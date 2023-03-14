@@ -1,35 +1,40 @@
 import { useState } from "react";
-import { useAppSelector } from "../../app/hooks";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
 import { selectAuth } from "../../features/auth/authSlice";
+import { queryClient } from "../../graphql-client/config";
+import { getPostsQuery } from "../../graphql-client/queries";
 import { Button } from "../Button";
 import { PostItem } from "../PostItem";
 
 type PropsType = {
   listPosts: any[];
+  total: number;
 };
 
-const pagesize = 3;
+const limit = 3;
 
 const PostListItem: React.FC<PropsType> = (props) => {
-  const { loading } = useAppSelector(selectAuth);
+  const { loading, accessToken } = useAppSelector(selectAuth);
+  const dispatch = useAppDispatch();
   const [currPage, setCurrPage] = useState(1);
   const [listPosts, setListPosts] = useState(props.listPosts);
 
-  function handleLoadMore() {
-    // if (loading) return;
-    // setLoading(true);
-    // postService
-    //   .getPostsPaging({ pagesize, currPage: currPage + 1 })
-    //   .then((res) => {
-    //     if (res.status === 200) {
-    //       const newPosts = res.posts || [];
-    //       setListPosts([...listPosts, ...newPosts]);
-    //       setCurrPage((prev) => prev + 1);
-    //     }
-    //   })
-    //   .finally(() => setLoading(false));
-  }
+  const totalPages = Math.ceil(props.total / limit);
 
+  const handleLoadMore = async () => {
+    try {
+      const resData = await queryClient(accessToken, dispatch, getPostsQuery, {
+        page: currPage + 1,
+        limit,
+      });
+      if (resData) {
+        setListPosts([...listPosts, ...resData.data.getPosts.posts]);
+        setCurrPage(currPage + 1);
+      }
+    } catch (error: any) {
+      console.log(error.message);
+    }
+  };
   return (
     <div className="ass1-section__list">
       {listPosts.map((post) => (
@@ -41,6 +46,7 @@ const PostListItem: React.FC<PropsType> = (props) => {
         type="button"
         onClick={handleLoadMore}
         className="load-more ass1-btn"
+        disabled={currPage >= totalPages ? true : false}
       >
         Xem thêm
       </Button>
