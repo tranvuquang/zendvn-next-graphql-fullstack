@@ -129,5 +129,28 @@ export const postResolver = {
         throw new GraphQLError(error.message);
       }
     },
+    async deletePost(
+      _parent: any,
+      { id, idArr }: any,
+      { accessToken }: Context
+    ) {
+      try {
+        if (!checkAuth(accessToken)) {
+          throw new GraphQLError(`Token is invalid`);
+        }
+        const postFounder = await posts.findByPk(id);
+        const commentsFounder = await comments.destroy({
+          where: { id: idArr },
+        });
+        const post = await posts.destroy({ where: { id } });
+        if (postFounder && post && commentsFounder) {
+          return postFounder;
+        }
+        throw new GraphQLError(`Internal server error`);
+      } catch (error) {
+        console.log(error.message);
+        throw new GraphQLError(error.message);
+      }
+    },
   },
 };

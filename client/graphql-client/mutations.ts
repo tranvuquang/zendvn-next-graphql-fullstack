@@ -61,17 +61,70 @@ const createCommentMutation = gql`
 `;
 
 const createPostMutation = gql`
-  mutation createPostMutation($post_content: String!, $uid: String!, $email: String!, $category: [String]!) {
-  createPost(post_content: $post_content, uid: $uid, email: $email, category: $category) {
-    id
-    uid
-    email
-    post_content
-    category
-    createdAt
-    updatedAt
+  mutation createPostMutation(
+    $post_content: String!
+    $uid: String!
+    $email: String!
+    $category: [String]!
+  ) {
+    createPost(
+      post_content: $post_content
+      uid: $uid
+      email: $email
+      category: $category
+    ) {
+      id
+      uid
+      email
+      post_content
+      category
+      createdAt
+      updatedAt
+    }
   }
-}
+`;
+
+const deleteCommentMutation = gql`
+  mutation deleteCommentMutation($id: String!) {
+    deleteComment(id: $id) {
+      comment_content
+      createdAt
+      email
+      id
+      pid
+      uid
+      updatedAt
+    }
+  }
+`;
+
+const deleteAllCommentsMutation = gql`
+  mutation Mutation($idArr: [String]!) {
+    deleteAllComments(idArr: $idArr)
+  }
+`;
+
+const deletePostMutation = gql`
+  mutation deletePostMutation($id: String!, $idArr: [String]) {
+    deletePost(id: $id, idArr: $idArr) {
+      category
+      createdAt
+      email
+      id
+      post_content
+      uid
+      updatedAt
+      comments {
+        comment_content
+        createdAt
+        email
+        id
+        pid
+        uid
+        updatedAt
+      }
+    }
+  }
 `;
 
 export {
@@ -79,4 +132,7 @@ export {
   updatePostMutation,
   createCommentMutation,
   createPostMutation,
+  deleteCommentMutation,
+  deleteAllCommentsMutation,
+  deletePostMutation,
 };

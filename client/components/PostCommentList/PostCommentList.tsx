@@ -6,16 +6,20 @@ import { selectAuth } from "../../features/auth/authSlice";
 type PropsType = {
   listComments: any[];
   postId?: string;
+  handleDeleteComment?: (id: string) => void;
+  hanldeDeleteAllComments?: () => void;
 };
 
 const PostCommentList: React.FC<PropsType> = ({
   listComments,
   postId = "",
+  handleDeleteComment = (id: string) => {},
+  hanldeDeleteAllComments = () => {},
 }) => {
-  const { user, accessToken, loading } = useAppSelector(selectAuth);
+  const { user, loading } = useAppSelector(selectAuth);
 
   const onDeleteComment = (id: string) => {
-    console.log(id);
+    handleDeleteComment(id);
   };
   return (
     <div className="ass1-comments">
@@ -24,7 +28,11 @@ const PostCommentList: React.FC<PropsType> = ({
           {listComments?.length || 0} Bình luận
         </div>
         {user.id === postId && listComments.length > 0 && (
-          <Button className="ass1-comments__options" variant="danger">
+          <Button
+            className="ass1-comments__options"
+            variant="danger"
+            onClick={hanldeDeleteAllComments}
+          >
             Delete All Comments
           </Button>
         )}
