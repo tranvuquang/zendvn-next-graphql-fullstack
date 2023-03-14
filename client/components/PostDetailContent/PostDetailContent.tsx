@@ -1,56 +1,51 @@
 import Link from "next/link";
-// import { PostCommentForm } from "../PostCommentForm"
-// import { PostCommentList } from "../PostCommentList"
 import { PostItem } from "../PostItem";
-// import { PostType } from "../../pages";
-// import { TypeCategory, TypeComment } from "../../pages/posts/[postId]";
-import { useRouter } from "next/router";
 import { useState } from "react";
-// import { useGlobalState } from "../../state";
-// import postService from "../../services/postService";
+import { PostCommentList } from "../PostCommentList";
+import { PostCommentForm } from "../PostCommentForm";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { selectAuth } from "../../features/auth/authSlice";
+import { mutationClient } from "../../graphql-client/config";
+import { createCommentMutation } from "../../graphql-client/mutations";
+import { getPostQuery } from "../../graphql-client/queries";
 
 type PropsType = {
-  // listComments: TypeComment[];
   postDetailData: any;
-  // postCategories: TypeCategory[];
 };
 
-const PostDetailContent: React.FC<PropsType> = ({
-  postDetailData,
-  // postCategories,
-  // listComments: initListComments
-}) => {
-  const router = useRouter();
-  const postId = router.query.postId as string;
-  // const [token] = useGlobalState("token");
-  // const [listComments, setListComments] = useState(initListComments);
+const PostDetailContent: React.FC<PropsType> = ({ postDetailData }) => {
+  const { user, accessToken } = useAppSelector(selectAuth);
+  const dispatch = useAppDispatch();
+  const [listComments, setListComments] = useState(postDetailData.comments);
 
   const handleSubmitForm = async (
     commentValue: string,
-    callback: (e?: Error) => void
+    callback: () => void
   ) => {
     try {
-      // const result = await postService.postComment(postId, commentValue, token);
-      // if(result.status !== 200) throw new Error("Dang binh luan khong thanh cong!");
-      // const listCmtRes = await postService.getCommentByPostId(postId);
-      // if(result.status === 200) {
-      //     setListComments(listCmtRes.comments);
-      //     callback();
-      // }
-    } catch (e) {
-      // callback(e)
-      // Khi throw new Error chay vao trong catch
+      if (commentValue) {
+        const comment = {
+          pid: postDetailData.id,
+          uid: user.id,
+          email: user.email,
+          comment_content: commentValue,
+        };
+        const { resData, reFetchData } = (await mutationClient(
+          accessToken,
+          dispatch,
+          createCommentMutation,
+          comment,
+          getPostQuery,
+          { id: postDetailData.id }
+        )) as any;
+        if (resData && reFetchData) {
+          setListComments(reFetchData.data.getPost.comments);
+          callback();
+        }
+      }
+    } catch (error: any) {
+      console.log(error.message);
     }
-
-    // postService
-    //     .postComment(postId, commentValue, token)
-    //     .then(async (res) => {
-    //         if(res.status === 200) {
-    //             const commentsPos = await postService.getCommentByPostId(postId);
-    //         } else {
-    //             // Bao Loi
-    //         }
-    //     })
   };
 
   return (
@@ -75,9 +70,9 @@ const PostDetailContent: React.FC<PropsType> = ({
         </ul>
       </div>
 
-      {/* <PostCommentForm handleSubmitForm={handleSubmitForm} /> */}
+      <PostCommentForm handleSubmitForm={handleSubmitForm} />
 
-      {/* <PostCommentList listComments={listComments} /> */}
+      <PostCommentList listComments={listComments} />
     </div>
   );
 };

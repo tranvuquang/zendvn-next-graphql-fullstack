@@ -36,4 +36,18 @@ const updatePostMutation = gql`
   }
 `;
 
-export { loginMutation, updatePostMutation };
+const createCommentMutation = gql`
+  mutation createCommentMutation($comment_content: String!, $uid: String!, $email: String!, $pid: String!) {
+  createComment(comment_content: $comment_content, uid: $uid, email: $email, pid: $pid) {
+    comment_content
+    email
+    id
+    pid
+    uid
+    createdAt
+    updatedAt
+  }
+}
+`;
+
+export { loginMutation, updatePostMutation,createCommentMutation };
