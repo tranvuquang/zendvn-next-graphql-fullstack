@@ -1,6 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../styles/styles.scss";
 import "../styles/header.scss";
+import "../styles/PostDetailContent.scss";
 
 import { store, wrapper } from "../app/store";
 import Head from "next/head";

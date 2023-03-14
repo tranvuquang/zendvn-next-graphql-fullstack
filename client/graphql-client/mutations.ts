@@ -10,25 +10,30 @@ const loginMutation = gql`
   }
 `;
 
-const createMessageMutation = gql`
-  mutation createMessageMutation(
-    $conversationId: String!
-    $sender: String!
-    $text: String!
+const updatePostMutation = gql`
+  mutation updatePostMutation(
+    $id: String!
+    $post_content: String!
+    $uid: String!
+    $email: String!
+    $category: [String]!
   ) {
-    createMessage(
-      conversationId: $conversationId
-      sender: $sender
-      text: $text
+    updatePost(
+      id: $id
+      post_content: $post_content
+      uid: $uid
+      email: $email
+      category: $category
     ) {
+      category
+      email
       id
-      conversationId
-      sender
-      text
+      post_content
+      uid
       createdAt
       updatedAt
     }
   }
 `;
 
-export { loginMutation, createMessageMutation };
+export { loginMutation, updatePostMutation };

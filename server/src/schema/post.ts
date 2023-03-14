@@ -17,6 +17,7 @@ export const typePost = `#graphql
   }
  
   type Mutation {
-    createPost(post_content: String!,uid: String!,email: String!,category:[String]!): Post
+    createPost(post_content: String!, uid: String!, email: String!,category:[String]!): Post
+    updatePost(id:String!, post_content: String!, uid: String!, email: String!, category:[String]!): Post
   }
 `;

@@ -13,7 +13,11 @@ export const postResolver = {
   Query: {
     async getPosts(_parent: any, _args: any, _context: Context) {
       try {
-        const postsFounder = await posts.findAll();
+        const postsFounder = await posts.findAll({
+          order: [
+            ['createdAt', 'DESC'],
+        ],
+        });
         if (postsFounder.lenth === 0) {
           throw new GraphQLError(`Posts list not found!`);
         }
@@ -75,6 +79,26 @@ export const postResolver = {
           createdAt: post.createdAt,
           updatedAt: post.updatedAt,
         };
+      } catch (error) {
+        console.log(error.message);
+        throw new GraphQLError(error.message);
+      }
+    },
+    async updatePost(
+      _parent: any,
+      { id, post_content, category }: any,
+      { accessToken }: Context
+    ) {
+      try {
+        if (!checkAuth(accessToken)) {
+          throw new GraphQLError(`Token is invalid`);
+        }
+        const postUpdated = await posts.update(
+          { post_content, category },
+          { where: { id }, returning: true, plain: true }
+        );
+        const post = postUpdated[1].dataValues;
+        return post;
       } catch (error) {
         console.log(error.message);
         throw new GraphQLError(error.message);

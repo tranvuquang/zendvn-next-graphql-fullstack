@@ -86,7 +86,10 @@ const Login: NextPage<Props> = (props) => {
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) =>
     async ({ query }) => {
-      console.log("store state on the server login.tsx", store.getState().auth);
+      console.log(
+        "02 login.tsx store state on the server: ",
+        store.getState().auth.user
+      );
       return {
         props: {
           // data,
