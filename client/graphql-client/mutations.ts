@@ -37,17 +37,46 @@ const updatePostMutation = gql`
 `;
 
 const createCommentMutation = gql`
-  mutation createCommentMutation($comment_content: String!, $uid: String!, $email: String!, $pid: String!) {
-  createComment(comment_content: $comment_content, uid: $uid, email: $email, pid: $pid) {
-    comment_content
-    email
+  mutation createCommentMutation(
+    $comment_content: String!
+    $uid: String!
+    $email: String!
+    $pid: String!
+  ) {
+    createComment(
+      comment_content: $comment_content
+      uid: $uid
+      email: $email
+      pid: $pid
+    ) {
+      comment_content
+      email
+      id
+      pid
+      uid
+      createdAt
+      updatedAt
+    }
+  }
+`;
+
+const createPostMutation = gql`
+  mutation createPostMutation($post_content: String!, $uid: String!, $email: String!, $category: [String]!) {
+  createPost(post_content: $post_content, uid: $uid, email: $email, category: $category) {
     id
-    pid
     uid
+    email
+    post_content
+    category
     createdAt
     updatedAt
   }
 }
 `;
 
-export { loginMutation, updatePostMutation,createCommentMutation };
+export {
+  loginMutation,
+  updatePostMutation,
+  createCommentMutation,
+  createPostMutation,
+};
