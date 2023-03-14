@@ -7,16 +7,41 @@ type Context = {
   accessToken: string;
 };
 
-const { posts } = db;
+const { posts, comments } = db;
 
 export const postResolver = {
+  Post: {
+    comments: async (parent: any, _args: any, { accessToken }: Context) => {
+      try {
+        if (!checkAuth(accessToken)) {
+          throw new GraphQLError(`Token is invalid`);
+        }
+        const commentsFounder = await comments.findAll({
+          where: { pid: parent.id },
+          order: [["createdAt", "DESC"]],
+        });
+        return commentsFounder.map((comment: any) => {
+          return {
+            id: comment.id,
+            uid: comment.uid,
+            email: comment.email,
+            comment_content: comment.comment_content,
+            pid: comment.pid,
+            createdAt: comment.createdAt,
+            updatedAt: comment.updatedAt,
+          };
+        });
+      } catch (error) {
+        console.log(error.message);
+        throw new GraphQLError(error.message);
+      }
+    },
+  },
   Query: {
     async getPosts(_parent: any, _args: any, _context: Context) {
       try {
         const postsFounder = await posts.findAll({
-          order: [
-            ['createdAt', 'DESC'],
-        ],
+          order: [["createdAt", "DESC"]],
         });
         if (postsFounder.lenth === 0) {
           throw new GraphQLError(`Posts list not found!`);

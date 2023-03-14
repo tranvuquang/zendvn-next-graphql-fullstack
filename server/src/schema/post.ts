@@ -9,6 +9,7 @@ export const typePost = `#graphql
     category:[String]!
     createdAt: Date
     updatedAt: Date
+    comments:[Comment]
   }
 
   type Query {
