@@ -74,9 +74,9 @@ function MyApp({ Component, pageProps }: MyAppProps) {
 }
 
 MyApp.getInitialProps = async (appContext: AppContext) => {
+  const appProps = await App.getInitialProps(appContext);
   try {
     console.log("01 _app.tsx");
-    const appProps = await App.getInitialProps(appContext);
 
     // lay data co dinh tu cookie
     const accessToken = getTokenFromCookie(appContext);
@@ -110,6 +110,11 @@ MyApp.getInitialProps = async (appContext: AppContext) => {
     };
   } catch (error: any) {
     console.log(error.message);
+    return {
+      pageProps: {
+        ...appProps.pageProps,
+      },
+    };
   }
 };
 

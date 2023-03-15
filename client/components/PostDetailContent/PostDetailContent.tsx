@@ -4,7 +4,7 @@ import { useState } from "react";
 import { PostCommentList } from "../PostCommentList";
 import { PostCommentForm } from "../PostCommentForm";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { selectAuth } from "../../features/auth/authSlice";
+import { selectAuth, setFilterRedux } from "../../features/auth/authSlice";
 import { mutationClient } from "../../graphql-client/config";
 import {
   createCommentMutation,
@@ -12,13 +12,14 @@ import {
   deleteCommentMutation,
 } from "../../graphql-client/mutations";
 import { getPostQuery } from "../../graphql-client/queries";
+import { filterDefaultData } from "../../features/auth/types";
 
 type PropsType = {
   postDetailData: any;
 };
 
 const PostDetailContent: React.FC<PropsType> = ({ postDetailData }) => {
-  const { user, accessToken } = useAppSelector(selectAuth);
+  const { user, accessToken, categories, filter } = useAppSelector(selectAuth);
   const dispatch = useAppDispatch();
   const [listComments, setListComments] = useState(postDetailData.comments);
 
@@ -98,6 +99,18 @@ const PostDetailContent: React.FC<PropsType> = ({ postDetailData }) => {
     }
   };
 
+  const onSetCategory = (id: string) => {
+    dispatch(
+      setFilterRedux({
+        ...filter,
+        limit: filterDefaultData.limit,
+        searchStr: filterDefaultData.searchStr,
+        page: filterDefaultData.page,
+        categoryId: id,
+      })
+    );
+  };
+
   return (
     <div className="ass1-section__list">
       <PostItem post={postDetailData} />
@@ -109,10 +122,19 @@ const PostDetailContent: React.FC<PropsType> = ({ postDetailData }) => {
         <ul>
           {postDetailData.category &&
             postDetailData.category.map((obj: string) => {
+              const cateFounder = categories.find((cate) => {
+                return cate.id === obj;
+              });
               return (
                 <li key={obj}>
-                  <Link href="/categories/[cateId]" as={`/categories/${obj}`}>
-                    {obj}
+                  <Link
+                    href="/posts"
+                    style={{ fontSize: 18 }}
+                    onClick={() => {
+                      onSetCategory(obj);
+                    }}
+                  >
+                    {cateFounder?.text}
                   </Link>
                 </li>
               );
