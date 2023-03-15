@@ -1,36 +1,51 @@
-import Link from "next/link";
-import { useAppSelector } from "../../app/hooks";
-import Dropdown from "react-bootstrap/Dropdown";
-import { selectAuth } from "../../features/auth/authSlice";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import Form from "react-bootstrap/Form";
+import { selectAuth, setFilterRedux } from "../../features/auth/authSlice";
+import { useEffect, useState } from "react";
+import { filterDefaultData } from "../../features/auth/types";
+
 type Props = {};
 
 export default function HeaderMenu(props: Props) {
-  const { categories } = useAppSelector(selectAuth);
+  const { categories, filter } = useAppSelector(selectAuth);
+  const dispatch = useAppDispatch();
+  const [category, setCategory] = useState(filter.categoryId);
+  const handleChange = (e: any) => {
+    const value = e.target.value;
+
+    dispatch(
+      setFilterRedux({
+        ...filter,
+        limit: filterDefaultData.limit,
+        searchStr: filterDefaultData.searchStr,
+        page: filterDefaultData.page,
+        categoryId: e.target.value,
+      })
+    );
+    setCategory(value);
+  };
+
+  useEffect(() => {
+    if (filter.searchStr) {
+      setCategory("");
+    }
+  }, [filter.searchStr]);
 
   return (
-    <Dropdown>
-      <Dropdown.Toggle
-        variant="warning"
-        id="dropdown-basic"
-        style={{
-          color: "unset",
-          border: "none",
-          backgroundColor: "transparent",
-        }}
-      >
-        Danh muc
-      </Dropdown.Toggle>
-      <Dropdown.Menu>
-        {categories.map((cate) => {
-          return (
-            <Dropdown.Item key={cate.id}>
-              <Link href={`/posts/categories/${cate.id}`}>
-                <a>{cate.text}</a>
-              </Link>
-            </Dropdown.Item>
-          );
-        })}
-      </Dropdown.Menu>
-    </Dropdown>
+    <Form.Select
+      aria-label="Default select example"
+      style={{ width: 150 }}
+      value={category}
+      onChange={handleChange}
+    >
+      <option value="">All</option>
+      {categories.map((category: any) => {
+        return (
+          <option key={category.id} value={category.id}>
+            {category.text}
+          </option>
+        );
+      })}
+    </Form.Select>
   );
 }

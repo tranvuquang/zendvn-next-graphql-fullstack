@@ -11,15 +11,21 @@ export const typePost = `#graphql
     updatedAt: Date
     comments:[Comment]
   }
-  type PostData{
-    posts:[Post]!
+
+  type Filter {
     page:Int
     limit:Int
     total:Int
+    categoryId:String
+    searchStr:String
+  }
+  type PostData{
+    filter:Filter
+    posts:[Post]!
   }
 
   type Query {
-    getPosts(page:Int, limit:Int):PostData!
+    getPosts(page:Int, limit:Int, categoryId:String, searchStr: String):PostData!
     getPost(id:String!):Post
   }
  
