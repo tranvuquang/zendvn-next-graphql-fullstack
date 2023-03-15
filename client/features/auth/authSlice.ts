@@ -1,25 +1,13 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { RootState } from "../../app/store";
-import { AuthState, IUser, userDefaultData } from "./types";
-import jwt_decode from "jwt-decode";
-
-// const accessToken =
-//   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjFjMThlMGYwLWJjYWQtMTFlZC05ZTFmLTNkNGM2YzdiZmI4MSIsImVtYWlsIjoiYWRtaW5AZ21haWwuY29tIiwiaWF0IjoxNjc4NTkyMDM1fQ.B0X8z24_grE__VcZoGe-503o74m0cbdPmIoNmqkIyUU";
-
-const getUser = () => {
-  let user: IUser = userDefaultData;
-  // if (accessToken) {
-  //   const { id, email } = jwt_decode(accessToken) as IUser;
-  //   user = { ...user, id, email };
-  // }
-  return user;
-};
+import { AuthState, filterDefaultData, userDefaultData } from "./types";
 
 const initialState: AuthState = {
-  user: getUser(),
+  user: userDefaultData,
   accessToken: "",
   loading: false,
   categories: [],
+  filter: filterDefaultData,
 };
 
 export const authSlice = createSlice({
@@ -38,6 +26,9 @@ export const authSlice = createSlice({
     setCategoriesRedux: (state, action) => {
       state.categories = action.payload;
     },
+    setFilterRedux: (state, action) => {
+      state.filter = action.payload;
+    },
   },
 });
 
@@ -46,6 +37,7 @@ export const {
   setAccessTokenRedux,
   setLoadingRedux,
   setCategoriesRedux,
+  setFilterRedux,
 } = authSlice.actions;
 
 export const selectAuth = (state: RootState) => state.auth;

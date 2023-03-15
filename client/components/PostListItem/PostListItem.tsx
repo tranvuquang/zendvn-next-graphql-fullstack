@@ -1,52 +1,34 @@
-import { useState } from "react";
+import { ReactNode } from "react";
 import { useAppDispatch, useAppSelector } from "../../app/hooks";
-import { selectAuth } from "../../features/auth/authSlice";
-import { queryClient } from "../../graphql-client/config";
-import { getPostsQuery } from "../../graphql-client/queries";
+import { selectAuth, setFilterRedux } from "../../features/auth/authSlice";
+import { filterDefaultData} from "../../features/auth/types";
 import { Button } from "../Button";
-import { PostItem } from "../PostItem";
 
 type PropsType = {
-  listPosts: any[];
-  total: number;
+  children?: ReactNode;
 };
 
-const limit = 3;
-
 const PostListItem: React.FC<PropsType> = (props) => {
-  const { loading, accessToken } = useAppSelector(selectAuth);
+  const { loading, filter } = useAppSelector(selectAuth);
+  const { total, limit } = filter;
   const dispatch = useAppDispatch();
-  const [currPage, setCurrPage] = useState(1);
-  const [listPosts, setListPosts] = useState(props.listPosts);
-
-  const totalPages = Math.ceil(props.total / limit);
-
   const handleLoadMore = async () => {
-    try {
-      const resData = await queryClient(accessToken, dispatch, getPostsQuery, {
-        page: currPage + 1,
-        limit,
-      });
-      if (resData) {
-        setListPosts([...listPosts, ...resData.data.getPosts.posts]);
-        setCurrPage(currPage + 1);
-      }
-    } catch (error: any) {
-      console.log(error.message);
-    }
+    dispatch(
+      setFilterRedux({
+        ...filter,
+        limit: limit + filterDefaultData.limit,
+      })
+    );
   };
   return (
     <div className="ass1-section__list">
-      {listPosts.map((post) => (
-        <PostItem key={post.id} post={post} />
-      ))}
-
+      {props.children}
       <Button
         isLoading={loading}
         type="button"
         onClick={handleLoadMore}
         className="load-more ass1-btn"
-        disabled={currPage >= totalPages ? true : false}
+        disabled={limit >= total ? true : false}
       >
         Xem thêm
       </Button>

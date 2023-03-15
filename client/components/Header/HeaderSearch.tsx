@@ -1,9 +1,12 @@
 import { useState } from "react";
-import { useRouter } from "next/router";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { selectAuth, setFilterRedux } from "../../features/auth/authSlice";
+import { filterDefaultData } from "../../features/auth/types";
 
 export default function HeaderSearch() {
-  const router = useRouter();
-  const [queryStr, setQueryStr] = useState("");
+  const { filter } = useAppSelector(selectAuth);
+  const dispatch = useAppDispatch();
+  const [queryStr, setQueryStr] = useState(filter.searchStr);
 
   function onChange(e: React.ChangeEvent<HTMLInputElement>) {
     setQueryStr(e.target.value);
@@ -11,10 +14,19 @@ export default function HeaderSearch() {
 
   function handleSubmit(e: React.SyntheticEvent) {
     e.preventDefault();
-    if (queryStr) {
-      router.push(`/search?q=${queryStr}`);
-    }
+    dispatch(
+      setFilterRedux({
+        ...filter,
+        limit: filterDefaultData.limit,
+        searchStr: queryStr.toLowerCase(),
+        page: filterDefaultData.page,
+        categoryId: filterDefaultData.categoryId,
+      })
+    );
+    setQueryStr("");
   }
+
+
 
   return (
     <div className="ass1-header__search">

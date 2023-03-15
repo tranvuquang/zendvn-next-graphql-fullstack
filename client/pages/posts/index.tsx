@@ -1,27 +1,64 @@
 import type { NextPage } from "next";
 import { wrapper } from "../../app/store";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNotAuthen } from "../../helpers/useAuthen";
 import { queryClient } from "../../graphql-client/config";
 import { getPostsQuery } from "../../graphql-client/queries";
 import { PostListItem } from "../../components/PostListItem";
+import { selectAuth, setFilterRedux } from "../../features/auth/authSlice";
+import { useAppDispatch, useAppSelector } from "../../app/hooks";
+import { PostItem } from "../../components/PostItem";
 
 type Props = {
   user: {
     id: string;
     email: string;
   };
-  posts: any[];
-  total: number;
 };
 
-const PostPage: NextPage<Props> = ({ posts = [], total }) => {
+const PostPage: NextPage<Props> = (props) => {
   useNotAuthen();
+  const { filter, accessToken } = useAppSelector(selectAuth);
+  const { page, limit, categoryId, searchStr } = filter;
+  const dispatch = useAppDispatch();
+
+  const [postsList, setPostsList] = useState([]);
+
+  useEffect(() => {
+    (async () => {
+      const postsData = await queryClient(
+        accessToken,
+        dispatch,
+        getPostsQuery,
+        { page, limit, categoryId, searchStr }
+      );
+      if (postsData) {
+        const { posts, filter } = postsData.data.getPosts;
+        setPostsList(posts);
+        dispatch(setFilterRedux(filter));
+      }
+    })();
+  }, [accessToken, categoryId, dispatch, limit, page, searchStr]);
+
   return (
     <div className="container">
+      <div className="header-search" style={{ padding: "30px 0" }}>
+        <h3>
+          Từ khóa tìm kiếm: <strong>{searchStr}</strong>
+        </h3>
+        <p>
+          Danh muc tim kiem:{" "}
+          {filter.categoryId === "" ? "Tat ca" : filter.categoryId}
+        </p>
+        <p>Tìm kiếm được ({filter.total}) kết quả</p>
+      </div>
       <div className="row">
         <div className="col-lg-8">
-          <PostListItem listPosts={posts} total={total}/>
+          <PostListItem>
+            {postsList.map((post: any) => (
+              <PostItem key={post.id} post={post} />
+            ))}
+          </PostListItem>
         </div>
         <div className="col-lg-4">
           {/* <HomeSidebar userPosts={userPosts} /> */}
@@ -34,31 +71,12 @@ const PostPage: NextPage<Props> = ({ posts = [], total }) => {
 export const getServerSideProps = wrapper.getServerSideProps(
   (store) =>
     async ({ query }) => {
-      const { dispatch, getState } = store;
-      let posts = [];
-      let total = 1;
-      const { accessToken } = getState().auth;
       console.log(
         "02 posts/index.tsx store state on the server:",
         store.getState().auth.user
       );
-      if (accessToken) {
-        const postsData = await queryClient(
-          accessToken,
-          dispatch,
-          getPostsQuery,
-          { page: 1, limit: 3 }
-        );
-        if (postsData) {
-          posts = postsData.data.getPosts.posts;
-          total = postsData.data.getPosts.total;
-        }
-      }
       return {
-        props: {
-          posts,
-          total,
-        },
+        props: {},
       };
     }
 );

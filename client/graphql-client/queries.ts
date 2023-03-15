@@ -3,9 +3,9 @@ import { gql } from "@apollo/client";
 const getCategoriesQuery = gql`
   query getCategoriesQuery {
     getCategories {
-      createdAt
       id
       text
+      createdAt
       updatedAt
     }
   }
@@ -14,41 +14,55 @@ const getCategoriesQuery = gql`
 const getUserQuery = gql`
   query getUserQuery($id: String) {
     getUser(id: $id) {
+      id
+      email
       accessToken
       createdAt
-      email
-      id
       updatedAt
     }
   }
 `;
 
 const getPostsQuery = gql`
-  query getPostsQuery($page: Int, $limit: Int) {
-  getPosts(page: $page, limit: $limit) {
-    posts {
-      email
-      post_content
-      comments {
-        comment_content
-        createdAt
-        email
-        id
-        pid
-        uid
-        updatedAt
+  query getPostsQuery(
+    $page: Int
+    $limit: Int
+    $categoryId: String
+    $searchStr: String
+  ) {
+    getPosts(
+      page: $page
+      limit: $limit
+      categoryId: $categoryId
+      searchStr: $searchStr
+    ) {
+      filter {
+        page
+        limit
+        total
+        searchStr
+        categoryId
       }
-      category
-      createdAt
-      id
-      uid
-      updatedAt
+      posts {
+        id
+        post_content
+        uid
+        email
+        category
+        createdAt
+        updatedAt
+        comments {
+          id
+          comment_content
+          pid
+          uid
+          email
+          createdAt
+          updatedAt
+        }
+      }
     }
-    limit
-    page
-    total
   }
-}
 `;
 const getPostQuery = gql`
   query getPostQuery($id: String!) {

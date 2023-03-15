@@ -2,6 +2,7 @@ require("dotenv").config();
 import { GraphQLError } from "graphql";
 import db from "../models";
 import { checkAuth } from "../middlewares/auth";
+import { Op } from "sequelize";
 
 type Context = {
   accessToken: string;
@@ -38,19 +39,58 @@ export const postResolver = {
     },
   },
   Query: {
-    async getPosts(_parent: any, { page, limit }: any, _context: Context) {
+    async getPosts(
+      _parent: any,
+      { page = 1, limit = 3, categoryId = "", searchStr = "" }: any,
+      _context: Context
+    ) {
       try {
+        console.log(searchStr);
         const postsFounder = await posts.findAll({
           order: [["createdAt", "DESC"]],
           subQuery: false,
           offset: (page - 1) * limit,
           limit,
+          where:
+            categoryId === ""
+              ? {
+                  post_content: {
+                    [Op.iLike]: `%${searchStr}%`,
+                  },
+                }
+              : {
+                  post_content: {
+                    [Op.iLike]: "%" + searchStr + "%",
+                  },
+                  category: { [Op.contains]: [`${categoryId}`] },
+                },
         });
-        const postsCounter=await posts.count()
-        if (postsFounder.lenth === 0) {
-          throw new GraphQLError(`Posts list not found!`);
-        }
+        const totalFound = await posts.count({
+          order: [["createdAt", "DESC"]],
+          subQuery: false,
+          where:
+            categoryId === ""
+              ? {
+                  post_content: {
+                    [Op.iLike]: "%" + searchStr + "%",
+                  },
+                }
+              : {
+                  post_content: {
+                    [Op.iLike]: "%" + searchStr + "%",
+                  },
+                  category: { [Op.contains]: [`${categoryId}`] },
+                },
+        });
+
         return {
+          filter: {
+            total: totalFound,
+            page,
+            limit,
+            categoryId,
+            searchStr,
+          },
           posts: postsFounder.map((post: any) => {
             return {
               id: post.id,
@@ -62,9 +102,6 @@ export const postResolver = {
               updatedAt: post.updatedAt,
             };
           }),
-          total: postsCounter,
-          page,
-          limit,
         };
       } catch (error) {
         console.log(error.message);

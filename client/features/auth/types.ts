@@ -7,14 +7,31 @@ export type ICategory = {
   text: string;
 };
 
+export type IFilter = {
+  categoryId: string;
+  searchStr: string;
+  page: number;
+  limit: number;
+  total: number;
+};
+
 export type AuthState = {
   user: IUser;
   accessToken: string;
   loading: boolean;
-  categories:ICategory[]
+  categories: ICategory[];
+  filter: IFilter;
 };
 
 export const userDefaultData = {
   id: "",
   email: "",
+};
+
+export const filterDefaultData = {
+  categoryId: "",
+  searchStr: "",
+  page: 1,
+  limit: 3,
+  total: 10,
 };
