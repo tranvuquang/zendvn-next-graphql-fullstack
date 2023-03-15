@@ -1,3 +1,4 @@
+import moment from "moment";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { Button } from "react-bootstrap";
@@ -54,7 +55,10 @@ const PostItem: React.FC<PropsType> = ({ post }) => {
             >
               {post.email}
             </Link>
-            <span className="ass1-section__passed">{post.createdAt}</span>
+            <span className="ass1-section__passed">
+              {" "}
+              {moment(post.createdAt, "YYYYMMDD").fromNow()} - {post.createdAt}
+            </span>
           </div>
         </div>
         <div className="ass1-section__content">

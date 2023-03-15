@@ -8,8 +8,9 @@ type Props = {};
 
 export default function HeaderMenu(props: Props) {
   const { categories, filter } = useAppSelector(selectAuth);
+  const { categoryId, searchStr } = filter;
   const dispatch = useAppDispatch();
-  const [category, setCategory] = useState(filter.categoryId);
+  const [category, setCategory] = useState(categoryId);
   const handleChange = (e: any) => {
     const value = e.target.value;
 
@@ -26,10 +27,11 @@ export default function HeaderMenu(props: Props) {
   };
 
   useEffect(() => {
-    if (filter.searchStr) {
+    if (searchStr) {
       setCategory("");
     }
-  }, [filter.searchStr]);
+    setCategory(categoryId);
+  }, [categoryId, searchStr]);
 
   return (
     <Form.Select

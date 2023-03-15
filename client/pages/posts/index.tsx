@@ -18,7 +18,7 @@ type Props = {
 
 const PostPage: NextPage<Props> = (props) => {
   useNotAuthen();
-  const { filter, accessToken } = useAppSelector(selectAuth);
+  const { filter, accessToken, categories } = useAppSelector(selectAuth);
   const { page, limit, categoryId, searchStr } = filter;
   const dispatch = useAppDispatch();
 
@@ -48,7 +48,11 @@ const PostPage: NextPage<Props> = (props) => {
         </h3>
         <p>
           Danh muc tim kiem:{" "}
-          {filter.categoryId === "" ? "Tat ca" : filter.categoryId}
+          {filter.categoryId === ""
+            ? "Tat ca"
+            : categories.find((cate) => {
+                return cate.id === filter.categoryId;
+              })?.text}
         </p>
         <p>Tìm kiếm được ({filter.total}) kết quả</p>
       </div>
